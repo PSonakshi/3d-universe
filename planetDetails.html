@@ -1,0 +1,295 @@
+
+
+        <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planet Details</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            background: #000;
+            color: white;
+        }
+        #planetDetails {
+            display: flex;
+            height: 100vh;
+        }
+        #left {
+            width: 50%;
+            padding: 20px;
+            background: #000;
+            overflow-y: auto;
+            position: relative;
+            text-align: center;
+        }
+        #right {
+            width: 50%;
+            height: 100%;
+            background: #000;
+            position: relative;
+        }
+
+        /* Add starry background effect */
+        #left::before,
+        #right::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://cdn.pixabay.com/photo/2016/12/06/12/58/space-1887277_960_720.jpg') repeat center center;
+            opacity: 0.2;
+            z-index: -1;
+        }
+
+        #backButton {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background-color: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        h1, p {
+            font-family: 'Arial', sans-serif;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div id="planetDetails">
+        <button id="backButton">Back</button>
+        <div id="left">
+            <h1 id="planetName">Planet Name</h1>
+            <p id="planetDetailsContent">Loading...</p>
+        </div>
+        <div id="right"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.152.0/build/three.module.js"></script>
+    <script>
+        // Fetch the planet name from the URL query string
+        const urlParams = new URLSearchParams(window.location.search);
+        const planetName = urlParams.get('planet');
+
+        // Planet details
+        const planetDetails = {
+            "Mercury": {
+                type: "Terrestrial planet",
+                orbitDistance: "57.9 million km (0.39 AU)",
+                diameter: "4,879 km",
+                mass: "3.30 × 10^23 kg",
+                gravity: "3.7 m/s² (0.38 of Earth's gravity)",
+                atmosphere: "Extremely thin, composed mostly of oxygen, sodium, hydrogen, helium, and potassium.",
+                temperature: "Daytime highs around 430°C (800°F), nighttime lows around -180°C (-290°F).",
+                facts: [
+                    "Mercury is the smallest planet in the solar system.",
+                    "It has no moons.",
+                    "The planet has extreme temperature fluctuations because it has no atmosphere to retain heat.",
+                    "It orbits the Sun very quickly, completing a year in just 88 Earth days."
+                ],
+                texture: '/mercury.jpg'
+            },
+            "Venus": {
+                type: "Terrestrial planet",
+                orbitDistance: "108.2 million km (0.72 AU)",
+                diameter: "12,104 km",
+                mass: "4.87 × 10^24 kg",
+                gravity: "8.87 m/s² (0.9 of Earth's gravity)",
+                atmosphere: "Thick, composed mostly of carbon dioxide, with clouds of sulfuric acid. The atmosphere creates a runaway greenhouse effect, trapping heat.",
+                temperature: "A constant 465°C (869°F), hotter than Mercury despite being farther from the Sun.",
+                facts: [
+                    "Venus rotates in the opposite direction to most planets (retrograde rotation).",
+                    "It has no moons.",
+                    "The surface is volcanic, with mountains and vast plains.",
+                    "Venus has the longest day of any planet (243 Earth days) but only takes 225 Earth days to orbit the Sun."
+                ],
+                texture: '/venus.jpg'
+            },
+            "Earth": {
+                type: "Terrestrial planet",
+                orbitDistance: "149.6 million km (1 AU)",
+                diameter: "12,742 km",
+                mass: "5.97 × 10^24 kg",
+                gravity: "9.81 m/s² (1.0 of Earth's gravity)",
+                atmosphere: "Nitrogen (78%), oxygen (21%), with trace gases such as carbon dioxide, argon, and water vapor.",
+                temperature: "Average temperature around 15°C (59°F).",
+                facts: [
+                    "Earth is the only known planet to support life.",
+                    "It has one moon.",
+                    "Earth's surface is about 71% water, and its atmosphere supports a stable climate and oxygen-based life.",
+                    "The magnetic field protects Earth from solar radiation."
+                ],
+                texture: '/earth.jpg'
+            },
+            "Mars": {
+                type: "Terrestrial planet",
+                orbitDistance: "227.9 million km (1.52 AU)",
+                diameter: "6,779 km",
+                mass: "6.42 × 10^23 kg",
+                gravity: "3.7 m/s² (0.38 of Earth's gravity)",
+                atmosphere: "Thin, mostly carbon dioxide (95%), with small amounts of nitrogen and argon.",
+                temperature: "Average around -60°C (-80°F), but can range from -125°C (-195°F) at the poles to 20°C (68°F) at the equator.",
+                facts: [
+                    "Known as the 'Red Planet' due to iron oxide (rust) on its surface.",
+                    "Mars has the largest volcano in the solar system, Olympus Mons.",
+                    "It has two small moons, Phobos and Deimos.",
+                    "Evidence suggests Mars once had liquid water on its surface, and scientists believe it may have hosted life in the past."
+                ],
+                texture: '/mars.jpg'
+            },
+            "Jupiter": {
+                type: "Gas giant",
+                orbitDistance: "778.5 million km (5.2 AU)",
+                diameter: "139,820 km",
+                mass: "1.90 × 10^27 kg",
+                gravity: "24.79 m/s² (2.5 times Earth's gravity)",
+                atmosphere: "Mostly hydrogen (90%) and helium (10%), with trace amounts of methane, water vapor, and ammonia.",
+                temperature: "Around -145°C (-234°F).",
+                facts: [
+                    "Jupiter is the largest planet in the solar system.",
+                    "It has a famous Great Red Spot, a massive storm that has been raging for at least 400 years.",
+                    "Jupiter has 79 known moons, including Ganymede, the largest moon in the solar system.",
+                    "It has a strong magnetic field and powerful radiation belts.",
+                    "Jupiter’s rings are faint and made of small particles."
+                ],
+                texture: '/jupiter.jpg'
+            },
+            "Saturn": {
+                type: "Gas giant",
+                orbitDistance: "1.43 billion km (9.58 AU)",
+                diameter: "116,460 km",
+                mass: "5.68 × 10^26 kg",
+                gravity: "10.44 m/s² (1.07 times Earth's gravity)",
+                atmosphere: "Primarily hydrogen (96%) and helium (3%), with trace amounts of methane and ammonia.",
+                temperature: "Around -178°C (-288°F).",
+                facts: [
+                    "Saturn is famous for its stunning ring system, which is made of ice particles and rock debris.",
+                    "It has 83 known moons, with Titan being the largest, larger than Mercury.",
+                    "Like Jupiter, Saturn is mostly made of hydrogen and helium, and it has a very low density (it would float in water).",
+                    "Saturn’s rings are made up of billions of particles, ranging from small grains to large ice chunks."
+                ],
+                texture: '/saturn.jpg'
+            },
+            "Uranus": {
+                type: "Ice giant",
+                orbitDistance: "2.87 billion km (19.2 AU)",
+                diameter: "50,724 km",
+                mass: "8.68 × 10^25 kg",
+                gravity: "8.69 m/s² (0.89 times Earth's gravity)",
+                atmosphere: "Composed primarily of hydrogen and helium, with significant amounts of methane (giving it a blue-green color).",
+                temperature: "Around -224°C (-371°F), the coldest planet in the solar system.",
+                facts: [
+                    "Uranus has a tilted axis, with an inclination of 98°, meaning it essentially rolls around the Sun on its side.",
+                    "It has 27 known moons, with Titania being the largest.",
+                    "Uranus has a faint ring system made of dark particles.",
+                    "The planet’s atmosphere contains water, ammonia, and methane clouds."
+                ],
+                texture: '/uranus.jpg'
+            },
+            "Neptune": {
+                type: "Ice giant",
+                orbitDistance: "4.5 billion km (30.1 AU)",
+                diameter: "49,244 km",
+                mass: "1.02 × 10^26 kg",
+                gravity: "11.15 m/s² (1.14 times Earth's gravity)",
+                atmosphere: "Composed mostly of hydrogen, helium, and methane, with trace amounts of water, ammonia, and other hydrocarbons.",
+                temperature: "Around -214°C (-353°F).",
+                facts: [
+                    "Neptune is the windiest planet, with wind speeds exceeding 2,100 km/h (1,300 mph).",
+                    "It has 14 known moons, with Triton being the largest, which orbits Neptune in the opposite direction of the planet's rotation.",
+                    "Neptune has a faint ring system composed of dark dust particles.",
+                    "The planet’s deep blue color comes from the methane in its atmosphere, which absorbs red light."
+                ],
+                texture: '/neptune.jpg'
+            },
+            "Pluto": {
+                type: "Dwarf planet",
+                orbitDistance: "5.9 billion km (39.5 AU)",
+                diameter: "2,377 km",
+                mass: "1.31 × 10^22 kg",
+                gravity: "0.62 m/s² (0.063 times Earth's gravity)",
+                atmosphere: "Thin, composed mainly of nitrogen, with small amounts of methane and carbon monoxide.",
+                temperature: "Around -229°C (-380°F).",
+                facts: [
+                    "Pluto was reclassified as a dwarf planet in 2006 by the International Astronomical Union.",
+                    "It has five known moons, the largest being Charon, which is half the size of Pluto itself.",
+                    "Pluto has a highly elliptical orbit, which sometimes brings it closer to the Sun than Neptune.",
+                    "Its surface is covered in ice, and it likely has a subsurface ocean."
+                ],
+                texture: '/pluto.jpg'
+            }
+        };
+
+        // Show planet details
+        const details = planetDetails[planetName];
+        if (details) {
+            document.getElementById('planetName').textContent = planetName;
+            document.getElementById('planetDetailsContent').innerHTML = `
+                <strong>Type:</strong> ${details.type}<br>
+                <strong>Orbit Distance:</strong> ${details.orbitDistance}<br>
+                <strong>Diameter:</strong> ${details.diameter}<br>
+                <strong>Mass:</strong> ${details.mass}<br>
+                <strong>Surface Gravity:</strong> ${details.gravity}<br>
+                <strong>Atmosphere:</strong> ${details.atmosphere}<br>
+                <strong>Temperature:</strong> ${details.temperature}<br>
+                <strong>Key Facts:</strong><ul>
+                    ${details.facts.map(fact => `<li>${fact}</li>`).join('')}
+                </ul>
+            `;
+        }
+
+        // Load the 3D model of the planet
+        function loadPlanet3DModel() {
+            const textureLoader = new THREE.TextureLoader();
+            textureLoader.load(details.texture, (texture) => {
+                const geometry = new THREE.SphereGeometry(1, 32, 32);
+                const material = new THREE.MeshBasicMaterial({ map: texture });
+
+                const planet = new THREE.Mesh(geometry, material);
+                const sceneRight = new THREE.Scene();
+                const cameraRight = new THREE.PerspectiveCamera(75, 1, 0.1, 10000);
+                const rendererRight = new THREE.WebGLRenderer();
+                rendererRight.setSize(window.innerWidth / 2, window.innerHeight);
+                document.getElementById('right').appendChild(rendererRight.domElement);
+
+                cameraRight.position.z = 5;
+                sceneRight.add(planet);
+
+                function animatePlanet() {
+                    requestAnimationFrame(animatePlanet);
+                    planet.rotation.y += 0.01; // Rotate the planet
+                    rendererRight.render(sceneRight, cameraRight);
+                }
+
+                animatePlanet();
+            });
+        }
+
+        // Check if the planet's texture file exists
+        loadPlanet3DModel();
+
+        // Back button functionality to go to index.html
+        document.getElementById('backButton').addEventListener('click', () => {
+            window.location.href = 'index.html'; // Redirect to index.html
+        });
+    </script>
+</body>
+</html>

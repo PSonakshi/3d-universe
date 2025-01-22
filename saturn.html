@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saturn Details</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body { 
+            margin: 0; 
+            font-family: 'Orbitron', sans-serif;
+            background: #000; 
+            color: white; 
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Stars background */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration) infinite;
+        }
+
+        .container {
+            display: flex;
+            padding: 2rem;
+            gap: 4rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .content {
+            flex: 1;
+            padding: 2rem;
+        }
+
+        #planet3D {
+            flex: 1;
+            height: 800px; 
+            position: sticky;
+            top: 2rem;
+        }
+
+        #backButton { 
+            position: fixed; 
+            top: 2rem; 
+            left: 2rem; 
+            padding: 0.75rem 1.5rem; 
+            background: transparent;
+            color: white; 
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 2rem;
+            cursor: pointer; 
+            font-family: 'Orbitron', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+            z-index: 2;
+        }
+
+        #backButton:hover {
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateX(-5px);
+        }
+
+        .planet-title {
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            background: linear-gradient(to right, #fff, #666);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 0.2em;
+        }
+
+        .info-section {
+            margin-bottom: 3rem;
+        }
+
+        .info-section h2 {
+            color: #888;
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.1em;
+        }
+
+        .info-section p {
+            margin: 1rem 0;
+            line-height: 1.8;
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .info-section ul {
+            list-style: none;
+            margin: 1rem 0;
+        }
+
+        .info-section ul li {
+            margin: 0.75rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .info-section ul li::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: #888;
+        }
+
+        .planet-dock {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1.5rem;
+            padding: 1rem;
+            z-index: 2;
+        }
+
+        .planet-icon {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .planet-icon-image {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            opacity: 0.6;
+        }
+
+        .planet-icon:hover .planet-icon-image {
+            transform: scale(1.2);
+            opacity: 1;
+        }
+
+        .planet-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .planet-icon-label {
+            position: absolute;
+            bottom: -1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            font-size: 0.75rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .planet-icon:hover .planet-icon-label {
+            opacity: 1;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                flex-direction: column;
+                padding: 1rem;
+                gap: 2rem;
+            }
+
+            #planet3D {
+                height: 600px;
+                position: relative;
+                top: 0;
+                order: -1;
+            }
+
+            .planet-title {
+                font-size: 2rem;
+                margin: 1rem 0 2rem 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .planet-dock {
+                overflow-x: auto;
+                max-width: 90%;
+                padding: 0.5rem;
+            }
+
+            .planet-icon-image {
+                width: 2.5rem;
+                height: 2.5rem;
+            }
+
+            #backButton {
+                top: 1rem;
+                left: 1rem;
+                padding: 0.5rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars"></div>
+
+    <button id="backButton">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m12 19-7-7 7-7"/>
+            <path d="M19 12H5"/>
+        </svg>
+        Back to Galaxy
+    </button>
+
+    <div class="container">
+        <div class="content">
+            <h1 class="planet-title">Saturn</h1>
+            
+            <div class="info-section">
+                <h2>Physical Characteristics</h2>
+                <p><strong>Type:</strong> Gas giant</p>
+                <p><strong>Orbit Distance:</strong> 1.429 billion km</p>
+                <p><strong>Diameter:</strong> 116,460 km</p>
+                <p><strong>Mass:</strong> 5.683 × 10^26 kg</p>
+            </div>
+
+            <div class="info-section">
+                <h2>Environmental Conditions</h2>
+                <p><strong>Surface Gravity:</strong> 10.44 m/s²</p>
+                <p><strong>Temperature:</strong> -178°C</p>
+                <p><strong>Atmosphere:</strong> Hydrogen, Helium, Methane</p>
+            </div>
+
+            <div class="info-section">
+                <h2>Key Facts</h2>
+                <ul>
+                    <li>Famous for its large and beautiful ring system</li>
+                    <li>Second largest planet in the solar system</li>
+                    <li>Has at least 82 moons, including Titan, the second largest moon in the solar system</li>
+                    <li>Has a very short day, only about 10.7 hours long</li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="planet3D"></div>
+    </div>
+
+    <div class="planet-dock">
+        <!-- Planet Icons for Navigation -->
+        <div class="planet-icon" onclick="navigateToPlanet('mercury')">
+            <div class="planet-icon-image">
+                <img src="https://images.unsplash.com/photo-1614732414444-096e5f1122d5?w=150&h=150&fit=crop" alt="Mercury">
+            </div>
+            <span class="planet-icon-label">Mercury</span>
+        </div>
+        <div class="planet-icon" onclick="navigateToPlanet('venus')">
+            <div class="planet-icon-image">
+                <img src="https://images.unsplash.com/photo-1614314107768-6018061b5b72?w=150&h=150&fit=crop" alt="Venus">
+            </div>
+            <span class="planet-icon-label">Venus</span>
+        </div>
+        <div class="planet-icon" onclick="navigateToPlanet('earth')">
+            <div class="planet-icon-image">
+                <img src="https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?w=150&h=150&fit=crop" alt="Earth">
+            </div>
+            <span class="planet-icon-label">Earth</span>
+        </div>
+        <div class="planet-icon" onclick="navigateToPlanet('mars')">
+            <div class="planet-icon-image">
+                <img src="https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=150&h=150&fit=crop" alt="Mars">
+            </div>
+            <span class="planet-icon-label">Mars</span>
+        </div>
+        <div class="planet-icon" onclick="navigateToPlanet('jupiter')">
+            <div class="planet-icon-image">
+                <img src="https://images.unsplash.com/photo-1614732484003-ef9881555dc3?w=150&h=150&fit=crop" alt="Jupiter">
+            </div>
+            <span class="planet-icon-label">Jupiter</span>
+        </div>
+        <div class="planet-icon" onclick="navigateToPlanet('saturn')">
+            <div class="planet-icon-image">
+                <img src="https://images.unsplash.com/photo-1614732414444-096e5f1122d5?w=150&h=150&fit=crop" alt="Saturn">
+            </div>
+            <span class="planet-icon-label">Saturn</span>
+        </div>
+        <div class="planet-icon" onclick="navigateToPlanet('uranus')">
+            <div class="planet-icon-image">
+                <img src="https://images.unsplash.com/photo-1614314107768-6018061b5b72?w=150&h=150&fit=crop" alt="Uranus">
+            </div>
+            <span class="planet-icon-label">Uranus</span>
+        </div>
+        <div class="planet-icon" onclick="navigateToPlanet('neptune')">
+            <div class="planet-icon-image">
+                <img src="https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?w=150&h=150&fit=crop" alt="Neptune">
+            </div>
+            <span class="planet-icon-label">Neptune</span>
+        </div>
+        <div class="planet-icon" onclick="navigateToPlanet('pluto')">
+            <div class="planet-icon-image">
+                <img src="https://images.unsplash.com/photo-1614732414444-096e5f1122d5?w=150&h=150&fit=crop" alt="Pluto">
+            </div>
+            <span class="planet-icon-label">Pluto</span>
+        </div>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.min.js';
+
+        // Back button action
+        document.getElementById('backButton').addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+
+        // Planet navigation function
+        window.navigateToPlanet = function(planet) {
+            window.location.href = `${planet}.html`;
+        };
+
+        // Create stars
+        function createStars() {
+            const starsContainer = document.querySelector('.stars');
+            const numberOfStars = 200;
+
+            for (let i = 0; i < numberOfStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                
+                const size = Math.random() * 2 + 1;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                
+                star.style.setProperty('--duration', `${Math.random() * 2 + 1}s`);
+                
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Initialize Three.js scene for Saturn
+        function init3DPlanet() {
+            const container = document.getElementById('planet3D');
+            const scene = new THREE.Scene();
+            
+            const camera = new THREE.PerspectiveCamera(75, container.offsetWidth / container.offsetHeight, 0.1, 1000);
+            camera.position.z = 5;
+
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.offsetWidth, container.offsetHeight);
+            container.appendChild(renderer.domElement);
+
+            const textureLoader = new THREE.TextureLoader();
+            textureLoader.load('saturn.jpg', (texture) => {
+                const geometry = new THREE.SphereGeometry(2, 64, 64); 
+                const material = new THREE.MeshBasicMaterial({ map: texture });
+                const planet = new THREE.Mesh(geometry, material);
+                scene.add(planet);
+
+                function animate() {
+                    requestAnimationFrame(animate);
+                    planet.rotation.y += 0.005;
+                    renderer.render(scene, camera);
+                }
+
+                animate();
+            });
+
+            window.addEventListener('resize', () => {
+                const width = container.offsetWidth;
+                const height = container.offsetHeight;
+                camera.aspect = width / height;
+                camera.updateProjectionMatrix();
+                renderer.setSize(width, height);
+            });
+        }
+
+        createStars();
+        init3DPlanet();
+    </script>
+</body>
+</html>

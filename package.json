@@ -1,0 +1,16 @@
+{
+  "dependencies": {
+    "@tabler/icons-react": "^3.28.1",
+    "clsx": "^2.1.1",
+    "framer-motion": "^11.18.1",
+    "tailwind-merge": "^2.6.0",
+    "three": "^0.171.0"
+  },
+  "devDependencies": {
+    "css-loader": "^7.1.2",
+    "style-loader": "^4.0.0",
+    "webpack": "^5.97.1",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.0"
+  }
+}
