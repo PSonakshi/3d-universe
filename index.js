@@ -43,17 +43,16 @@ const planetData = [
 const planets = [];
 const orbits = [];
 const planetLabels = [];
-let orbiting = true;  // Flag to control if the planets should orbit
-
+let orbiting = true;  
 planetData.forEach((data, index) => {
   const planetGeometry = new THREE.SphereGeometry(data.size, 32, 32);
   textureLoader.load(data.texture, (texture) => {
     const planetMaterial = new THREE.MeshPhongMaterial({ map: texture, shininess: 10 });
     const planet = new THREE.Mesh(planetGeometry, planetMaterial);
-    planet.position.x = data.distance;
     planet.name = data.name;
-    planet.description = data.description;  // Store the description
+    planet.description = data.description;  
     planet.orbiting = true;
+    planet.angle = Math.random() * Math.PI * 2; 
     scene.add(planet);
     planets.push(planet);
 
@@ -115,7 +114,6 @@ window.addEventListener('resize', () => {
 // Raycaster for planet selection and hover
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
-let targetPlanet = null;
 
 // Hover effect container (will be used to show planet details)
 const infoBox = document.createElement('div');
@@ -141,7 +139,7 @@ window.addEventListener('mousemove', (event) => {
   const intersects = getIntersectingPlanet();
   if (intersects.length > 0) {
     const planet = intersects[0].object;
-    const planetDataItem = planetData.find(p => p.name === planet.name); // Find correct planet data
+    const planetDataItem = planetData.find(p => p.name === planet.name); 
     
     // Show the information box with planet details
     infoBox.style.display = 'block';
@@ -166,7 +164,7 @@ window.addEventListener('click', (event) => {
   const intersects = getIntersectingPlanet();
   if (intersects.length > 0) {
     const planet = intersects[0].object;
-    const planetDataItem = planetData.find(p => p.name === planet.name); // Find correct planet data
+    const planetDataItem = planetData.find(p => p.name === planet.name); 
     
     // Remove the infoBox
     infoBox.style.display = 'none';
@@ -247,16 +245,13 @@ moveDownButton.addEventListener('click', () => {
 function animate() {
   requestAnimationFrame(animate);
 
-  // Rotate planets only if they are orbiting
+  // Rotate planets around the sun based on their angle and distance
   if (orbiting) {
     planets.forEach((planet, index) => {
-      if (planet.orbiting) {
-        planet.rotation.y += 0.0005;
-        const distance = planetData[index].distance;
-        const angle = Date.now() * 0.00001 * (index + 1);
-        planet.position.x = distance * Math.cos(angle);
-        planet.position.z = distance * Math.sin(angle);
-      }
+      planet.angle += 0.0001 * (index + 1); 
+      const distance = planetData[index].distance;
+      planet.position.x = distance * Math.cos(planet.angle);
+      planet.position.z = distance * Math.sin(planet.angle);
     });
   }
 
