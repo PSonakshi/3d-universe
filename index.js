@@ -77,16 +77,13 @@ planetData.forEach((data, index) => {
     label.style.position = 'absolute';
     label.style.color = 'white';
     label.style.fontSize = '18px';
-    label.style.pointerEvents = 'none'; // Prevent interference with interactions
+    label.style.pointerEvents = 'none'; 
     document.body.appendChild(label);
 
     planetLabels.push({ label: label, planet: planet });
 
-    // Add click event listener for redirecting to planet page and stopping the solar system
-    planet.addEventListener('click', () => {
-      window.location.href = `${data.name.toLowerCase()}.html`; // Redirect to the planet page
-      orbiting = false; // Stop the orbiting when a planet is clicked
-    });
+  
+  
   });
 });
 
