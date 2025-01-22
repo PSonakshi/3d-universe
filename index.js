@@ -81,9 +81,6 @@ planetData.forEach((data, index) => {
     document.body.appendChild(label);
 
     planetLabels.push({ label: label, planet: planet });
-
-  
-  
   });
 });
 
@@ -157,6 +154,25 @@ window.addEventListener('mousemove', (event) => {
     `;
   } else {
     infoBox.style.display = 'none';
+  }
+});
+
+// Mouse click event listener for planet selection
+window.addEventListener('click', (event) => {
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  raycaster.setFromCamera(mouse, camera);
+
+  const intersects = getIntersectingPlanet();
+  if (intersects.length > 0) {
+    const planet = intersects[0].object;
+    const planetDataItem = planetData.find(p => p.name === planet.name); // Find correct planet data
+    
+    // Remove the infoBox
+    infoBox.style.display = 'none';
+    
+    // Redirect to the planet's HTML page
+    window.location.href = `${planetDataItem.name.toLowerCase()}.html`;
   }
 });
 
